@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "art-template": "^4.13.2",
+    "mime": "^2.5.2",
+    "mine": "^0.1.0"
+  }
+}
