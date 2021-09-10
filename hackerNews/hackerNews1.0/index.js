@@ -74,11 +74,12 @@ server.on("request", (req, res) => {
         return console.log(err);
       }
       data = JSON.parse(data);
-      let id = 1; //设置默认值，防止数组为空
-      if (data.list.length > 0) {
-        id = data.list[data.list.length - 1].id + 1;
-        //新添加的这一项的ID要比原来数组最后一项的id+1
-      }
+      // let id = 1; //设置默认值，防止数组为空
+      // if (data.list.length > 0) {
+      //   id = data.list[data.list.length - 1].id + 1;
+      //   //新添加的这一项的ID要比原来数组最后一项的id+1
+      // }
+      id = data.list.length - 1 === 0 ? 1 :data.list[data.list.length - 1].id + 1;
       info.id = id;
       data.list.push(info);
       data = JSON.stringify(data, null, 4);
