@@ -1,52 +1,81 @@
 (function (window) {
 	'use strict';
 	const vm = new Vue({
-		el: '#app',
+		el: "#app",
 		data: {
-			list :[
-				{id: 1, name:"斌仔今天基金赚麻", done: true},
-				{id: 2, name:"斌仔今天股票赚麻", done: true},
-				{id: 3, name:"斌仔今天起飞", done: true}
-			],
-			// 代办名称
-			todoName: "",
-			// 编辑删除的id
-			editId: -1
-
+			list: [],
+			editId: -1,
+			todoName: ""
+		},
+		created() {
+			axios.get("http://localhost:3000/list").then(res => {
+				this.list = res.data;
+			})
 		},
 		methods: {
-			addTodo(e) {
-				//如果文本框无内容，则阻止添加
+			addTodo() {
+				//非空判断
 				if (this.todoName.trim().length == 0) {
 					return
 				}
-				// 添加ID
-				const id = this.list.length == 0 ? 1 : this.list[this.list.length - 1].id + 1;
-				this.list.push({
-					id,
+				axios.post("http://localhost:3000/list", {
 					name: this.todoName,
 					done: false
+				}).then(res => {
+					this.list.push(res.data)
 				})
-				//添加完数据后清空输入框
-				this.todoName = "";
+				this.todoName = ""
 			},
+			// 删除任务
 			delTodo(id) {
-				// 删除
-				this.list = this.list.filter(item => item.id != id)
+				axios.delete(`http://localhost:3000/list/${id}`).then(res => {
+					this.list = this.list.filter(item => item.id != id);
+				})
 			},
+			// 双击时显示编辑状态
 			showEdit(id) {
-				this.editId = id
+				this.editId = id;
 			},
 			// 隐藏编辑状态
-			hideEdit() {
-				this.editId = -1
+			hideEdit(e) {
+				// // 每次触发DOM事件时会产生一个事件对象（也称event对象），此处的参数e接收事件对象。而事件
+				// 对象也有很多属性和方法，其中target属性是获取触发
+				// 事件对象的目标，也就是绑定事件的元素，e.target表
+				// 示该DOM元素，然后在获取其相应的属性值
+				axios.patch(`http://localhost:3000/list/${this.editId}`, {
+					name: e.target.value
+				}).then(res => {
+					this.editId = -1;
+				})
+			},
+			// 点击清除已经完成的任务
+			claerCompleted() {
+				this.list = this.list.filter(item => !item.done)
 			}
 		},
 		computed: {
+			// 没有任务时隐藏底部
 			isFooterShow() {
 				return this.list.length > 0;
+			},
+			// 剩余未完成个数
+			itemLeftCount() {
+				return this.list.filter(item => !item.done).length
+			},
+			// 是否显示清除已完成
+			isClearCompletedShow() {
+				return this.list.some(item => item.done)
 			}
-		}
+		},
+		// 监听
+		// watch: {
+		// 	list: {
+		// 		deep: true,
+		// 		hanlder(newVal) {
+		// 			localStorage.setItem('list', JSON.stringify(newVal))
+		// 		}
+		// 	}
+		// }
 	})
 
 })(window);
